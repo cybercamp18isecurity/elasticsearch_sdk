@@ -24,9 +24,16 @@ class ElasticSearcher(object):
     def change_index(self, index):
         self._INDEX = index
 
-    def get_from_elasticsearch(self, id, doc_type=None, routing=None, ignore=[]):
+    def get_index(self, index):
+        if index != None:
+            index = index
+        else:
+            index = self._INDEX
+        return index
+
+    def get_from_elasticsearch(self, id, doc_type="doc", routing=None, ignore=[], index=None):
         data = self.elasticsearch.get(
-            index=self._INDEX, doc_type=doc_type, id=id, routing=routing, ignore=ignore)
+            index=self.get_index(index), doc_type=doc_type, id=id, routing=routing, ignore=ignore)
         try:
             if data['found'] == False:
                 return None
@@ -34,13 +41,12 @@ class ElasticSearcher(object):
             raise Exception(data)
         return data
 
-    def make_query(self, query, doc_type=None, filter_path=[], ignore=[]):
+    def make_query(self, query, doc_type="doc", filter_path=[], ignore=[], index=None):
         response = self.elasticsearch.search(
-            index=self._INDEX, doc_type=doc_type, body=query, filter_path=filter_path, ignore=[])
+            index=self.get_index(index), doc_type=doc_type, body=query, filter_path=filter_path, ignore=[])
         return response['hits']
 
-    def get_list_of_unique_elements(self, field, doc_type, order="asc", id=None):
-
+    def get_list_of_unique_elements(self, field, doc_type="doc", order="asc", id=None, index=None):
         query = {
             "size": 0,
             "aggs": {
@@ -57,7 +63,7 @@ class ElasticSearcher(object):
 
         query = json.dumps(query)
         response = self.elasticsearch.search(
-            index=self._INDEX, doc_type=doc_type, body=query)
+            index=self.get_index(index), doc_type=doc_type, body=query)
 
         results = []
         for bucket in response['aggregations']['unique_elements']['buckets']:
@@ -65,30 +71,32 @@ class ElasticSearcher(object):
 
         return results
 
-    def countResultsOfQuery(self, query, doc_type=None, filter_path=[]):
+    def count_results_of_query(self, query, doc_type="doc", filter_path=[], index=None):
         response = self.elasticsearch.count(
-            index=self._INDEX, doc_type=doc_type, body=query, filter_path=filter_path)
+            index=self.get_index(index), doc_type=doc_type, body=query, filter_path=filter_path)
         return response
 
-    def create_document(self, id, data, doc_type, parent_id=None):
+    def create_document(self, id, data, doc_type="doc", parent_id=None, index=None):
         query = json.dumps(data)
         response = self.elasticsearch.index(
-            index=self._INDEX, op_type='index', doc_type=doc_type, id=id, body=query, parent=parent_id)
+            index=self.get_index(index), op_type='index', doc_type=doc_type, id=id, body=query, parent=parent_id)
         return response['_id']
 
-    def update_document(self, id, data, doc_type, parent_id=None):
+    def update_document(self, id, data, doc_type="doc", parent_id=None, index=None):
         query = json.dumps({"doc": data})
         response = self.elasticsearch.update(
-            index=self._INDEX, doc_type=doc_type, id=id, body=query, parent=parent_id)
+            index=self.get_index(index), doc_type=doc_type, id=id, body=query, parent=parent_id)
         return response['_id']
 
-    def parseEpochToDatetime(self, epoch_mills, format="%Y-%m-%d %H:%M:%S"):
+    @staticmethod
+    def parseEpochToDatetime(epoch_mills, format="%Y-%m-%d %H:%M:%S"):
         if not epoch_mills:
             return ''
         timestamp = epoch_mills / 1000.0
         return datetime.fromtimestamp(timestamp).strftime(format)
 
-    def parseDatetimeToEpoch(self, date, format="%Y-%m-%d %H:%M:%S.%f"):
+    @staticmethod
+    def parseDatetimeToEpoch(date, format="%Y-%m-%d %H:%M:%S.%f"):
         if not date:
             return date
         return int(datetime.strptime(date, format).timestamp() * 1000)
