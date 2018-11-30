@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from elasticsearch import Elasticsearch, RequestsHttpConnection
+from elasticsearch.exceptions import NotFoundError
 import json
 from datetime import datetime
 
@@ -66,13 +67,13 @@ class ElasticSearcher(object):
             index=self._INDEX, doc_type=doc_type, body=query, filter_path=filter_path)
         return response
 
-    def createDocument(self, id, data, doc_type, parent_id=None):
+    def create_document(self, id, data, doc_type, parent_id=None):
         query = json.dumps(data)
         response = self.elasticsearch.index(
             index=self._INDEX, op_type='index', doc_type=doc_type, id=id, body=query, parent=parent_id)
         return response['_id']
 
-    def updateDocument(self, id, data, doc_type, parent_id=None):
+    def update_document(self, id, data, doc_type, parent_id=None):
         query = json.dumps({"doc": data})
         response = self.elasticsearch.update(
             index=self._INDEX, doc_type=doc_type, id=id, body=query, parent=parent_id)

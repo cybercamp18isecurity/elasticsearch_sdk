@@ -8,13 +8,10 @@ index = "filebeat-6.5.1-2018.11.29"
 def test_connection():
     elk = ElasticSearcher(host, port, index)
 
-
 def test_connection_bad_host():
     with pytest.raises(BadConnectionException):
         bad_host = "google.com"
         elk = ElasticSearcher(bad_host, port, index)
-
-
 
 def test_connection_bad_port():
     with pytest.raises(BadConnectionException):
