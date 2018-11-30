@@ -1,1 +1,1 @@
-from elasticsearch_sdk.elasticsearcher import ElasticSearcher
+from .elasticsearcher import ElasticSearcher

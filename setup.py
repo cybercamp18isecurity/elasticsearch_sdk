@@ -15,7 +15,7 @@ REQUIREMENTS_TEST = [str(ir.req) for ir in parse_requirements(
 
 setup(
     name='elasticsearch_sdk',
-    version='0.2',
+    version='0.3',
     description='SDK de elasticsearch',
 
     author='Javier Gutiérrez',
