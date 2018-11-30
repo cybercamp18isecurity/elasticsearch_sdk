@@ -3,11 +3,10 @@ from elasticsearch_sdk.elasticsearcher import ElasticSearcher, NotFoundError
 import time
 
 @pytest.fixture()
-def elk_controler_test():
-    host = "ec2-3-8-16-183.eu-west-2.compute.amazonaws.com"
+def elk_controler_test(elk_host):
     port = 9200
     index = "test-pytest"
-    elk = ElasticSearcher(host, port, index)
+    elk = ElasticSearcher(elk_host, port, index)
     return elk
 
 id_test = time.time()
