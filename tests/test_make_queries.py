@@ -15,6 +15,20 @@ def test_make_query(elk_controler):
 
     data = elk_controler.make_query(query, doc_type="doc")
     assert len(data) > 0
+    assert data['total'] > 0
+    assert len(data['hits']) > 0
+
+def test_make_query_not_found_data(elk_controler):
+
+    hostname = "perro_matico"
+    query = {
+        "query": {"term": {"beat.name": hostname}}
+    }
+
+    data = elk_controler.make_query(query, doc_type="doc")
+    assert data['total'] == 0
+    assert len(data['hits']) == 0
+
 
 def test_get_hosts(elk_controler):
 
