@@ -21,6 +21,9 @@ class ElasticSearcher(object):
         if self.elasticsearch.ping() == False:
             raise BadConnectionException()
 
+    def change_index(self, index):
+        self._INDEX = index
+
     def get_from_elasticsearch(self, id, doc_type=None, routing=None, ignore=[]):
         data = self.elasticsearch.get(
             index=self._INDEX, doc_type=doc_type, id=id, routing=routing, ignore=ignore)
