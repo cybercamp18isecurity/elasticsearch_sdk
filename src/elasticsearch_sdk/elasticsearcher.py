@@ -3,6 +3,8 @@ from elasticsearch import Elasticsearch, RequestsHttpConnection
 import json
 from datetime import datetime
 
+class BadConnectionException(Exception):
+    """ Bad connection Exception """
 
 class ElasticSearcher(object):
     def __init__(self, host, port, index):
@@ -15,8 +17,10 @@ class ElasticSearcher(object):
             hosts=[{'host': self._HOST, 'port': int(self._PORT)}],
             connection_class=RequestsHttpConnection
         )
+        if self.elasticsearch.ping() == False:
+            raise BadConnectionException()
 
-    def getFromElasticsearch(self, id, doc_type=None, routing=None, ignore=[]):
+    def get_from_elasticsearch(self, id, doc_type=None, routing=None, ignore=[]):
         data = self.elasticsearch.get(
             index=self._INDEX, doc_type=doc_type, id=id, routing=routing, ignore=ignore)
         try:
@@ -26,12 +30,12 @@ class ElasticSearcher(object):
             raise Exception(data)
         return data
 
-    def makeQuery(self, query, doc_type=None, filter_path=[], ignore=[]):
+    def make_query(self, query, doc_type=None, filter_path=[], ignore=[]):
         response = self.elasticsearch.search(
             index=self._INDEX, doc_type=doc_type, body=query, filter_path=filter_path, ignore=[])
         return response['hits']
 
-    def getListOfUniqueElements(self, field, doc_type, order="asc", id=None):
+    def get_list_of_unique_elements(self, field, doc_type, order="asc", id=None):
 
         query = {
             "size": 0,
