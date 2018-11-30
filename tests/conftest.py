@@ -8,6 +8,6 @@ def elk_host():
 @pytest.fixture()
 def elk_controler(elk_host):
     port = 9200
-    index = "filebeat-6.5.1-2018.11.29"
+    index = "filebeat-*"
     elk = ElasticSearcher(elk_host, port, index)
     return elk
